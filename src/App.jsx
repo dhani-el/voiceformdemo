@@ -1,4 +1,4 @@
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import soundName from "./assets/one.mpeg"
 import soundEmail from "./assets/two.mpeg"
 import "./style.css"
@@ -20,11 +20,15 @@ function CustomForm(){
   const [email,setEmail] = useState("");
   const [address,setAddress] = useState("");
   const [showBlur,setShowBlur] = useState(false);
-  const nameAudio = new Audio(soundName);
-  const emailAudio = new Audio(soundEmail);
+  const nameAudio = new Audio();
+  const emailAudio = new Audio();
   const nameRef = useRef(null);
   const emailRef = useRef(null);
 
+  useEffect(()=>{
+    nameAudio.muted = true;
+    emailAudio.muted = true;
+  })
 
   function handleInputChange(value,setter){
     setter(init=>value)
@@ -33,28 +37,48 @@ function CustomForm(){
   function soundAnError(name){
 
     if (name === "name") {
-            nameAudio.play().catch(error=>console.log(error))
+            nameAudio.src = soundName;
+            nameAudio.muted = false
+            nameAudio.autoplay = true;
+            nameAudio.play().catch(error=>console.log(error));
     }else{
+      emailAudio.src = soundEmail;
+      nameAudio.muted = false
+      emailAudio.autoplay = true;
       emailAudio.play().catch(error=>console.log(error))
     }
   }
 
   function stopAllSound(){
-    nameAudio.pause()
-    emailAudio.pause()
+    nameAudio.pause();
+    emailAudio.pause();
+  }
+
+  function unMuteSound(name){
+    if (name === "name") {
+      nameAudio.muted = false
+    }else{
+    emailAudio.muted = false
+    }
   }
 
   function handleSubmit(){
     stopAllSound();
     switch (true) {
       case name.trim() === "":{
-        highlightUnfilledInput(nameRef);
-        soundAnError("name");
+        setTimeout(()=>{
+          highlightUnfilledInput(nameRef);
+          soundAnError("name");
+          unMuteSound("name");
+        },1)
       }
         break;
       case email.trim() === "":{
+        setTimeout(()=>{
         highlightUnfilledInput(emailRef);
-        soundAnError("email")
+        soundAnError("email");
+        unMuteSound("email");
+        },1)
       };
         break;
       default:alert("form submitted")
